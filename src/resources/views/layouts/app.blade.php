@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COACHTECH</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+
+    @yield('css')
 </head>
 <body>
 
@@ -25,9 +27,15 @@
         @else
 
             {{-- ▼ 検索フォーム --}}
-            <form class="search-form">
-                <input type="text" placeholder="なにをお探しですか？">
-            </form>
+        <form class="search-form" method="GET" action="/">
+            <input
+                type="text"
+                name="keyword"
+                placeholder="なにをお探しですか？"
+                value="{{ request('keyword') }}"
+            >
+            <input type="hidden" name="tab" value="{{ request('tab') }}">
+        </form>
 
             {{-- ▼ ナビゲーション --}}
             <nav class="nav">

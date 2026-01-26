@@ -5,21 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Like extends Model
+class Comment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
         'item_id',
-        'delete_flag',
+        'body',
     ];
-
-    // 有効ないいねだけ取得するスコープ（重要）
-    public function scopeActive($query)
-    {
-        return $query->where('delete_flag', 0);
-    }
 
     public function user()
     {
