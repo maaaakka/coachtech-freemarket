@@ -1,50 +1,97 @@
 @extends('layouts.app')
 
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+@endsection
+
 @section('content')
 <div class="profile-container">
-    <h2>プロフィール設定</h2>
 
-    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+    <h2 class="profile-title">プロフィール設定</h2>
+
+    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
-        {{-- プロフィール画像 --}}
-        <div>
-            <img src="{{ auth()->user()->profile_image 
-                ? asset('storage/' . auth()->user()->profile_image) 
-                : asset('images/default.png') }}" width="100">
+        {{-- アイコン --}}
+        <div class="profile-image-area">
+            @if(optional($user->profile)->image_path)
+                <img
+                    src="{{ asset('storage/' . optional($user->profile)->image_path) }}"
+                    class="profile-image"
+                >
+            @else
+                <div class="profile-image default"></div>
+            @endif
 
-            <input type="file" name="profile_image">
+            <label class="image-select-btn">
+                画像を選択する
+                <input type="file" name="image_path" hidden>
+            </label>
+
+            @error('image_path')
+                <p class="error">{{ $message }}</p>
+            @enderror
         </div>
 
         {{-- ユーザー名 --}}
-        <div>
+        <div class="form-group">
             <label>ユーザー名</label>
-            <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}">
-            @error('name') <p>{{ $message }}</p> @enderror
+            <input
+                type="text"
+                name="name"
+                value="{{ old('name', $user->name) }}"
+            >
+
+            @error('name')
+                <p class="error">{{ $message }}</p>
+            @enderror
         </div>
 
         {{-- 郵便番号 --}}
-        <div>
+        <div class="form-group">
             <label>郵便番号</label>
-            <input type="text" name="postcode" value="{{ old('postcode', auth()->user()->postcode ?? '') }}">
-            @error('postcode') <p>{{ $message }}</p> @enderror
+            <input
+                type="text"
+                name="postcode"
+                value="{{ old('postcode', optional($user->profile)->postcode) }}"
+            >
+
+            @error('postcode')
+                <p class="error">{{ $message }}</p>
+            @enderror
         </div>
 
         {{-- 住所 --}}
-        <div>
+        <div class="form-group">
             <label>住所</label>
-            <input type="text" name="address" value="{{ old('address', auth()->user()->address ?? '') }}">
-            @error('address') <p>{{ $message }}</p> @enderror
+            <input
+                type="text"
+                name="address"
+                value="{{ old('address', optional($user->profile)->address) }}"
+            >
+
+            @error('address')
+                <p class="error">{{ $message }}</p>
+            @enderror
         </div>
 
         {{-- 建物名 --}}
-        <div>
+        <div class="form-group">
             <label>建物名</label>
-            <input type="text" name="building" value="{{ old('building', auth()->user()->building ?? '') }}">
-            @error('building') <p>{{ $message }}</p> @enderror
+            <input
+                type="text"
+                name="building"
+                value="{{ old('building', optional($user->profile)->building) }}"
+            >
+
+            @error('building')
+                <p class="error">{{ $message }}</p>
+            @enderror
         </div>
 
-        <button type="submit">更新する</button>
+        <button type="submit" class="profile-submit">
+            更新する
+        </button>
     </form>
 </div>
 @endsection

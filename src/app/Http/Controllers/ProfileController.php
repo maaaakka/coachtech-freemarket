@@ -3,50 +3,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\ProfileRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use App\Models\Address;
+use App\Models\Profile;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
-        return view('auth.profile');
+        $user = Auth::user()->load('profile');
+
+        return view('auth.profile', compact('user'));
     }
 
-    public function update(Request $request)
+    public function update(ProfileRequest $request)
     {
-        $request->validate([
-            'name' => ['required'],
-            'postcode' => ['required'],
-            'address' => ['required'],
-            'profile_image' => ['nullable', 'image'],
-        ]);
-
         $user = Auth::user();
 
-        // 画像アップロード
-        if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_image')->store('profiles', 'public');
-            $user->profile_image = $path;
-        }
-
-        // ユーザー更新
-        $user->update([
-            'name' => $request->name,
-            'profile_completed' => 1,
-        ]);
-
-        // 住所更新 or 作成
-        Address::updateOrCreate(
+       // プロフィール作成 or 更新
+        $profile = $user->profile()->updateOrCreate(
             ['user_id' => $user->id],
             [
                 'postcode' => $request->postcode,
-                'address' => $request->address,
+                'address'  => $request->address,
                 'building' => $request->building,
             ]
         );
 
-        return redirect('/')->with('success', 'プロフィールを更新しました');
+        // 画像アップロード
+        if ($request->hasFile('image_path')) {
+            $path = $request->file('image_path')->store('profiles', 'public');
+            $profile->update([
+                'image_path' => $path,
+            ]);
+        }
+
+        // users テーブル更新
+        $user->update([
+            'name' => $request->name,
+            'profile_completed' => true,
+        ]);
+
+        return redirect()->route('mypage')->with('success', 'プロフィールを更新しました');
     }
 }
