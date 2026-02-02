@@ -69,9 +69,13 @@
 
     {{-- 購入ボタン --}}
     <div class="purchase-button">
-        <a href="{{ route('purchase.confirm', $item->id) }}" class="btn-purchase">
-            購入手続きへ
-        </a>
+        @if(!$item->purchase)
+            <a href="{{ route('purchase.confirm', $item->id) }}" class="btn-purchase">
+                購入手続きへ
+            </a>
+        @else
+            <div class="sold-label">SOLD</div>
+        @endif
     </div>
 
     {{-- 商品説明 --}}

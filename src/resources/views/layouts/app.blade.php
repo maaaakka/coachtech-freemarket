@@ -49,13 +49,15 @@
 
                 {{-- ログイン済み --}}
                 @auth
-                    <a href="/mypage">マイページ</a>
-                    <a href="/sell" class="sell-btn">出品</a>
 
                     <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                         @csrf
-                        <button type="submit" class="logout-btn">ログアウト</button>
+                        <button type="submit" class="nav-link logout-btn">ログアウト</button>
                     </form>
+
+                    <a href="/mypage" class="nav-link">マイページ</a>
+                    <a href="/sell" class="sell-btn">出品</a>
+
                 @endauth
 
             </nav>
@@ -67,6 +69,7 @@
 <main>
     @yield('content')
 </main>
+
 
 </body>
 </html>

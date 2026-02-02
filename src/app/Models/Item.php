@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Comment;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,7 +38,8 @@ class Item extends Model
     // 　　いいね
     public function likes()
     {
-        return $this->hasMany(Like::class);
+        return $this->hasMany(Like::class)
+        ->where('delete_flag', 0);
     }
 
     // コメント
@@ -44,4 +47,12 @@ class Item extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    // 購入情報（1商品1購入想定）
+    public function purchase()
+    {
+        return $this->hasOne(Purchase::class);
+    }
+
+    
 }

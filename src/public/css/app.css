@@ -14,21 +14,72 @@ body {
 .header-inner {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 15px;
+    padding: 15px 20px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 30px;
+}
+
+.logo {
+    flex-shrink: 0;
+}
+
+.search-form {
+    flex: 1;
+    max-width: 600px;
 }
 
 .search-form input {
-    width: 300px;
-    padding: 8px;
+    flex: 1;
+    max-width: 400px;
 }
 
-.nav a {
+.search-form input {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 4px;
+    border: none;
+}
+
+/* ナビ全体 */
+.nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-shrink: 0;
+}
+
+.nav a,
+.nav-link,
+.logout-btn {
+    white-space: nowrap;
+}
+
+/* 通常リンク */
+.nav-link {
     color: #fff;
-    margin-left: 15px;
     text-decoration: none;
+    font-size: 14px;
+}
+
+/* logoutボタンをリンク見た目に */
+.logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+}
+
+/* 出品ボタンだけ目立たせる */
+.sell-btn {
+    background: #fff;
+    color: #000;
+    padding: 6px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
 }
 
 /* タブ */
@@ -58,7 +109,7 @@ body {
 }
 
 .item-card img {
-    width: 100%;
+    width: 85%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     background: #eee;

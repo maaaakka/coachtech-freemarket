@@ -51,4 +51,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchase/{item}', [PurchaseController::class, 'confirm'])
     ->name('purchase.confirm');
 
+    Route::post('/purchase/{item}', [PurchaseController::class, 'store'])
+    ->name('purchase.store');
+
+    // 出品画面
+    Route::get('/sell', [ItemController::class, 'create'])->name('items.create');
+
+    // 出品保存
+    Route::post('/sell', [ItemController::class, 'store'])->name('items.store');
+
+    
 });

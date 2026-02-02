@@ -14,19 +14,15 @@
 
         {{-- アイコン --}}
         <div class="profile-image-area">
+
             @if(optional($user->profile)->image_path)
-                <img
-                    src="{{ asset('storage/' . optional($user->profile)->image_path) }}"
-                    class="profile-image"
-                >
+                <img src="{{ asset('storage/' . optional($user->profile)->image_path) }}" class="profile-image">
             @else
                 <div class="profile-image default"></div>
             @endif
 
-            <label class="image-select-btn">
-                画像を選択する
-                <input type="file" name="image_path" hidden>
-            </label>
+            <label for="image_path" class="image-select-btn">画像を選択する</label>
+            <input type="file" id="image_path" name="image_path" accept="image/*" class="file-input">
 
             @error('image_path')
                 <p class="error">{{ $message }}</p>

@@ -40,6 +40,10 @@
     font-size: 13px;
 }
 
+.file-input {
+    display: none;
+}
+
 .form-group {
     text-align: left;
     margin-bottom: 20px;

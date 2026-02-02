@@ -2,6 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Item;
+use App\Models\Comment;
+use App\Models\Address;
+use App\Models\Profile;
+
+
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,10 +27,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'profile_completed',
-        'postcode',
-        'address',
-        'building',
         'profile_completed',
     ];
 
@@ -59,8 +61,34 @@ class User extends Authenticatable
         return $this->hasMany(Like::class);
     }
 
+    public function likedItems()
+    {
+        return $this->belongsToMany(Item::class, 'likes')
+            ->wherePivot('delete_flag', 0)
+            ->withTimestamps();
+    }
+
     public function address()
-{
-    return $this->hasOne(Address::class);
-}
+    {
+        return $this->hasOne(Address::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    // 購入履歴
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
+
+    // プロフィール（アイコン・住所など）
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    
 }

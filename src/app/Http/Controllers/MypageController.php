@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Item;
+use App\Models\Purchase;
 
 class MypageController extends Controller
 {

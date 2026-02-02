@@ -1,0 +1,153 @@
+/* =========================
+   レイアウト全体
+========================= */
+.purchase-container {
+    display: flex;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.purchase-left {
+    flex: 2;
+}
+
+.purchase-right {
+    flex: 1;
+}
+
+/* =========================
+   商品情報
+========================= */
+.item-area {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.item-image {
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #ccc;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.item-image.default {
+    background: #ddd;
+}
+
+.item-name {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.item-price {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* =========================
+   セクション共通（支払い方法・配送先）
+========================= */
+.section {
+    margin-top: 0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.section-header a {
+    font-size: 14px;
+    color: #0073cc;
+    text-decoration: none;
+}
+
+.section-header a:hover {
+    text-decoration: underline;
+}
+
+.section-body {
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* セレクトボックス */
+.section-body select {
+    width: 50%;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+/* =========================
+   区切り線
+========================= */
+.divider {
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+    margin: 30px 0;
+}
+
+/* =========================
+   右カラム（購入概要）
+========================= */
+.summary {
+    border: 1px solid #ccc;
+    padding: 30px;
+}
+
+.summary-divider {
+    height: 1px;
+    background-color: #ccc;
+    margin: 20px 0;
+    width: calc(100% + 60px);
+    margin-left: -30px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.summary-row:last-child {
+    margin-bottom: 0;
+}
+
+/* =========================
+   購入ボタン
+========================= */
+.purchase-btn {
+    width: 100%;
+    margin-top: 20px;
+    background: #f55b5b;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.purchase-btn:hover {
+    opacity: 0.9;
+}

@@ -1,0 +1,171 @@
+.sell-container {
+    max-width: 1100px;
+    margin: 40px auto;
+}
+
+.sell-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.image-section h3 {
+    font-size: 18px;
+}
+
+/* セクション自体には線を引かない */
+.sell-section {
+    margin-top: 35px;
+}
+
+/* 見出しの下に線 */
+.sell-section h3 {
+    font-size: 20px;
+    color: #808080;
+    margin-bottom: 15px;
+    padding-bottom: 1px;
+    border-bottom: 1px solid #ddd;
+}
+
+.sell-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+/* 画像アップロード枠 */
+.image-upload-box {
+    border: 2px dashed #ddd;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.image-select-btn {
+    border: 1px solid #f55b5b;
+    color: #f55b5b;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #fff;
+}
+
+.condition-section h3 {
+    font-size: 18px;
+}
+
+/* 入力欄共通 */
+.sell-container input[type="text"],
+.sell-container input[type="number"],
+.sell-container textarea,
+.sell-container select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.category {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* タグを並べる */
+.category-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* タグの土台 */
+.category-tag {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+}
+
+/* 本物のチェックボックスは消す */
+.category-tag input[type="checkbox"] {
+    display: none;
+}
+
+/* 見た目のタグ本体 */
+.category-tag {
+    padding: 6px 14px;
+    border: 1px solid #ff5a5a;
+    color: #ff5a5a;
+    border-radius: 20px;
+    font-size: 14px;
+    background: #fff;
+    transition: 0.2s;
+}
+
+/* 選択状態の見た目を label 自体に適用 */
+.category-tag:has(input[type="checkbox"]:checked) {
+    background: #ff5a5a;
+    color: #fff;
+    border-color: #ff5a5a;
+}
+
+.sell-container .form-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+}
+.create-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 価格入力 */
+.price-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px 12px;
+    background: #fff;
+}
+
+.price-input span {
+    font-size: 16px;
+    margin-right: 6px;
+    color: #333;
+}
+
+.sell-container .price-input input {
+    border: none;
+    outline: none;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+/* 出品ボタン */
+.sell-submit-btn {
+    margin-top: 30px;
+    width: 100%;
+    padding: 14px;
+    background: #f55b5b;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* エラー */
+.error {
+    color: red;
+    font-size: 13px;
+}

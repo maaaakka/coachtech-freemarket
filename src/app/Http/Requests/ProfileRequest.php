@@ -11,7 +11,7 @@ class ProfileRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize(): boot
+    public function authorize(): bool
     {
         return true;
     }
