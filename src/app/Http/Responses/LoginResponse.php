@@ -9,12 +9,19 @@ class LoginResponse implements LoginResponseContract
 {
     public function toResponse($request)
     {
-        // プロフィール未完了ならプロフィール画面へ
-        if (! auth()->user()->profile_completed) {
-            return redirect('/profile');
+        $user = auth()->user();
+
+        // ① メール未認証
+        if (! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
         }
 
-        // 完了済みならトップページへ
+        // ② 認証済み・プロフィール未完了
+        if (! $user->profile_completed) {
+            return redirect()->route('profile.edit');
+        }
+
+        // ③ 完了済み
         return redirect('/');
     }
 }

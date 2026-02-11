@@ -65,8 +65,8 @@
 
     {{-- 🟢 右エリア（購入フォーム） --}}
     <div class="purchase-right">
-        <form action="{{ route('purchase.store', $item->id) }}" method="POST">
-            @csrf
+    <form action="{{ route('purchase.checkout', $item) }}" method="POST">
+    @csrf
 
             <div class="summary">
                 <div class="summary-row">

@@ -45,6 +45,10 @@ class ProfileController extends Controller
             'profile_completed' => true,
         ]);
 
-        return redirect()->route('mypage')->with('success', 'プロフィールを更新しました');
+        // 🔥 メール未認証なら認証画面へ戻す
+        if (! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+        return redirect('mypage');
     }
 }

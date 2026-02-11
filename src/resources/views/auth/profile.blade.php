@@ -35,7 +35,7 @@
             <input
                 type="text"
                 name="name"
-                value="{{ old('name', $user->name) }}"
+                value="{{ old('name', $user->name) }}" maxlength="255" required
             >
 
             @error('name')
@@ -48,8 +48,8 @@
             <label>郵便番号</label>
             <input
                 type="text"
-                name="postcode"
-                value="{{ old('postcode', optional($user->profile)->postcode) }}"
+                name="postcode" pattern="\d{3}-\d{4}" 
+                value="{{ old('postcode', optional($user->profile)->postcode) }}" inputmode="numeric" required
             >
 
             @error('postcode')
@@ -63,7 +63,7 @@
             <input
                 type="text"
                 name="address"
-                value="{{ old('address', optional($user->profile)->address) }}"
+                value="{{ old('address', optional($user->profile)->address) }}" maxlength="255" required
             >
 
             @error('address')

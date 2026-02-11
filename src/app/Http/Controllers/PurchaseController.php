@@ -8,6 +8,9 @@ use App\Models\Purchase;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\PurchaseRequest;
 use Illuminate\Http\Request;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
+use Stripe\Checkout\Session as StripeSession;
 
 class PurchaseController extends Controller
 {
@@ -66,41 +69,63 @@ class PurchaseController extends Controller
         ));
     }
 
+    public function store()
+    {
+        return redirect()->back();
+    }
     /**
      * 購入確定処理
      */
-    public function store(PurchaseRequest $request, $item_id)
+    public function success(Request $request)
     {
+        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $stripeSessionId = $request->query('session_id');
+
+        if (!$stripeSessionId) {
+            return redirect()->route('items.index')->with('error', 'セッションIDがありません');
+        }
+
+        // Stripeに直接確認（←セッション照合はしない）
+        $stripeSession = \Stripe\Checkout\Session::retrieve($stripeSessionId);
+
+        if ($stripeSession->payment_status !== 'paid') {
+            return redirect()->route('items.index')->with('error', '支払い未完了');
+        }
+
+        // 🔥 Stripeのmetadataから商品ID取得
+        $itemId = $stripeSession->metadata->item_id ?? null;
+
+        if (!$itemId) {
+            return redirect()->route('items.index')->with('error', '商品情報が取得できません');
+        }
+
         $user = Auth::user();
-        $item = Item::findOrFail($item_id);
+        $item = Item::findOrFail($itemId);
 
         // 自分の商品は買えない
         if ($item->user_id === $user->id) {
-            return back()->with('error', '自分の商品は購入できません');
+            return redirect()->route('items.index')->with('error', '自分の商品は購入できません');
         }
 
         // 売り切れチェック
         if (Purchase::where('item_id', $item->id)->exists()) {
-            return back()->with('error', 'この商品はすでに購入されています');
+            return redirect()->route('items.index')->with('error', 'この商品はすでに購入されています');
         }
 
-        // 🔥 購入時に使う住所データ決定
+        // 🔥 住所決定
         $tempAddress = session('temp_address');
 
         if ($tempAddress) {
-            // 変更した住所を保存
             $address = Address::create([
                 'user_id'  => $user->id,
                 'postcode' => $tempAddress['postcode'],
                 'address'  => $tempAddress['address'],
                 'building' => $tempAddress['building'],
             ]);
-
-            // セッション削除（次回はprofileに戻す）
             session()->forget(['temp_address', 'temp_address_item_id']);
 
         } elseif ($user->profile) {
-            // profile住所で購入する場合も address として保存
             $address = Address::create([
                 'user_id'  => $user->id,
                 'postcode' => $user->profile->postcode,
@@ -108,7 +133,7 @@ class PurchaseController extends Controller
                 'building' => $user->profile->building,
             ]);
         } else {
-            return back()->with('error', '住所を登録してください');
+            return redirect()->route('items.index')->with('error', '住所を登録してください');
         }
 
         // 購入記録作成
@@ -116,11 +141,47 @@ class PurchaseController extends Controller
             'user_id'        => $user->id,
             'item_id'        => $item->id,
             'address_id'     => $address->id,
-            'payment_method' => $request->payment_method,
-            'payment_status' => 0,
+            'payment_method' => session('payment_method', 1),
+            'payment_status' => 1,
         ]);
 
-        return redirect()->route('mypage')
-            ->with('success', '購入が完了しました');
+        session()->forget(['payment_method', 'payment_item_id', 'temp_address']);
+
+        return redirect()->route('mypage')->with('success', '購入が完了しました');
+    }
+
+    public function checkout(Request $request, Item $item)
+    {
+        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $session = \Stripe\Checkout\Session::create([
+            'payment_method_types' => ['card', 'konbini'],
+            'mode' => 'payment',
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'jpy',
+                    'product_data' => [
+                        'name' => $item->name,
+                    ],
+                    'unit_amount' => $item->price,
+                ],
+                'quantity' => 1,
+            ]],
+            // 🔥 ここが超重要
+            'metadata' => [
+                'item_id' => $item->id,
+                'user_id' => auth()->id(),
+            ],
+            'success_url' => url('/purchase/success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => url('/purchase/cancel'),
+        ]);
+
+        return redirect($session->url);
+    }
+
+    public function cancel()
+    {
+        return redirect()->route('items.index')
+            ->with('error', '決済がキャンセルされました');
     }
 }
