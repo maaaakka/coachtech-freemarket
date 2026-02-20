@@ -55,13 +55,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/purchase/success', [PurchaseController::class, 'success'])->name('purchase.success');
     Route::get('/purchase/cancel', [PurchaseController::class, 'cancel'])->name('purchase.cancel');
 
-
     Route::get('/purchase/{item}', [PurchaseController::class, 'confirm'])->name('purchase.confirm');
     Route::post('/purchase/{item}', [PurchaseController::class, 'store'])->name('purchase.store');
 
-    Route::post('/purchase/{item}/checkout', [PurchaseController::class, 'checkout'])->name('purchase.checkout');
-    
+    Route::get('/purchase/{item}/checkout', [PurchaseController::class, 'checkout'])->name('purchase.checkout');
+
     Route::get('/sell', [ItemController::class, 'create'])->name('items.create');
     Route::post('/sell', [ItemController::class, 'store'])->name('items.store');
 
 });
+
+    Route::post('/stripe/webhook', [PurchaseController::class, 'webhook']);

@@ -33,15 +33,25 @@
 
     {{-- 商品一覧 --}}
     <div class="items-grid">
-        @foreach($items as $item)
-    <div class="item-card">
-        <a href="{{ route('items.show', $item->id) }}">
-            <img src="{{ asset('storage/' . $item->image_path) }}" alt="{{ $item->name }}">
-        </a>
-        <p class="item-name">{{ $item->name }}</p>
-    </div>
-@endforeach
-    </div>
 
+        {{-- 未ログインでマイリストタブなら空表示 --}}
+        @if(request('tab') === 'mylist' && !auth()->check())
+        @else
+            @foreach($items as $item)
+                <div class="item-card">
+                    <a href="{{ route('items.show', $item->id) }}">
+                        <img src="{{ asset('storage/' . $item->image_path) }}" alt="{{ $item->name }}">
+
+                        {{-- Sold表示 --}}
+                        @if($item->purchase)
+                            <span class="sold-label">Sold</span>
+                        @endif
+                    </a>
+                    <p class="item-name">{{ $item->name }}</p>
+                </div>
+            @endforeach
+        @endif
+
+    </div>
 </div>
 @endsection

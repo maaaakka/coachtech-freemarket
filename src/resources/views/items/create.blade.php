@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<div class="sell-container">
+<div class="exhibition-wrapper sell-container">
     <h2 class="sell-title">商品の出品</h2>
 
     <form action="{{ route('items.store') }}" method="POST" enctype="multipart/form-data">
@@ -31,11 +31,14 @@
             <div class="category-group">
                 @foreach($categories as $category)
                     <label class="category-tag">
-                        <input type="checkbox" name="categories[]" value="{{ $category->id }}" required>
+                        <input type="checkbox" name="categories[]" value="{{ $category->id }}">
                         {{ $category->name }}
                     </label>
                 @endforeach
             </div>
+            @error('categories')
+                <p class="error">{{ $message }}</p>
+            @enderror
         </div>
 
             <div class="condition-section">

@@ -1,8 +1,9 @@
 .mypage-header {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
 }
 
 .mypage-icon {
@@ -39,10 +40,21 @@
 }
 
 .mypage-tabs {
+    position: relative;
     display: flex;
     gap: 30px;
-    border-bottom: 1px solid #ddd;
     margin-bottom: 20px;
+}
+
+.mypage-tabs::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 100vw;
+    height: 1px;
+    background: #ddd;
+    transform: translateX(-50%);
 }
 
 .mypage-tabs a {
@@ -53,13 +65,23 @@
 
 .mypage-tabs .active {
     color: #f55b5b;
-    border-bottom: 2px solid #f55b5b;
+    font-weight: bold;
+}
+
+.mypage-container {
+    max-width: 1200px;
+    /* ← 900〜1100で調整可 */
+    margin: 60px auto;
+    /* 上下余白＋中央寄せ */
+    padding: 0 5px;
+    /* 端にくっつかないように */
 }
 
 .item-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
+    padding: 0 10px;
 }
 
 .item-card img {

@@ -30,42 +30,45 @@ class Purchase extends Model
 
     /**
      * ===========================
-     * 支払いステータス 定数
+     * 支払いステータス 定数（←ここ重要）
      * ===========================
      */
-    public const STATUS_PENDING = 0;   // 未決済
-    public const STATUS_PAID = 1;      // 支払い完了
-    public const STATUS_SHIPPED = 2;   // 発送済み
-    public const STATUS_DONE = 3;      // 取引完了
-    public const STATUS_CANCEL = 9;    // キャンセル
+    public const STATUS_PENDING = 1;     // 支払い待ち
+    public const STATUS_PAID = 2;        // 支払い完了
+    public const STATUS_EXPIRED = 3;     // 期限切れ
+    public const STATUS_CANCEL = 4;      // キャンセル
 
     /**
-     * ユーザー
+     * ===========================
+     * リレーション
+     * ===========================
      */
+
+    // ユーザー
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * 商品
-     */
+    // 商品
     public function item()
     {
         return $this->belongsTo(Item::class);
     }
 
-    /**
-     * 配送先住所
-     */
+    // 配送先住所
     public function address()
     {
         return $this->belongsTo(Address::class);
     }
 
     /**
-     * 支払い方法（日本語表示用）
+     * ===========================
+     * 表示用アクセサ
+     * ===========================
      */
+
+    // 支払い方法ラベル
     public function getPaymentMethodLabelAttribute()
     {
         return match ($this->payment_method) {
@@ -75,18 +78,33 @@ class Purchase extends Model
         };
     }
 
-    /**
-     * ステータス表示用
-     */
+    // 支払いステータスラベル
     public function getStatusLabelAttribute()
     {
         return match ($this->payment_status) {
-            self::STATUS_PENDING => '未払い',
+            self::STATUS_PENDING => '支払い待ち',
             self::STATUS_PAID => '支払い完了',
-            self::STATUS_SHIPPED => '発送済み',
-            self::STATUS_DONE => '取引完了',
+            self::STATUS_EXPIRED => '期限切れ',
             self::STATUS_CANCEL => 'キャンセル',
             default => '不明',
         };
+    }
+
+    /**
+     * ===========================
+     * よく使う判定メソッド（超便利）
+     * ===========================
+     */
+
+    // 支払い完了しているか
+    public function isPaid(): bool
+    {
+        return $this->payment_status === self::STATUS_PAID;
+    }
+
+    // 支払い待ちか
+    public function isPending(): bool
+    {
+        return $this->payment_status === self::STATUS_PENDING;
     }
 }

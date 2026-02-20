@@ -6,6 +6,10 @@
 
 @section('content')
 
+@php
+    $paymentMethod = request('payment_method', 1);
+@endphp
+
 <div class="purchase-container">
 
     {{-- 左エリア --}}
@@ -65,39 +69,40 @@
 
     {{-- 🟢 右エリア（購入フォーム） --}}
     <div class="purchase-right">
-    <form action="{{ route('purchase.checkout', $item) }}" method="POST">
-    @csrf
+    <form action="{{ route('purchase.store', $item->id) }}" method="POST">
+        @csrf
 
-            <div class="summary">
-                <div class="summary-row">
-                    <span>商品代金</span>
-                    <span>¥{{ number_format($item->price) }}</span>
-                </div>
-
-                <div class="summary-divider"></div>
-
-                <div class="summary-row">
-                    <span>支払い方法</span>
-                    <span>
-                        @if($paymentMethod == 1)
-                            クレジットカード
-                        @elseif($paymentMethod == 2)
-                            コンビニ払い
-                        @else
-                            未選択
-                        @endif
-                    </span>
-                </div>
+        <div class="summary">
+            <div class="summary-row">
+                <span>商品代金</span>
+                <span>¥{{ number_format($item->price) }}</span>
             </div>
 
-            {{-- sessionの支払い方法を送る --}}
-            <input type="hidden" name="payment_method" value="{{ $paymentMethod }}">
+            <div class="summary-divider"></div>
 
-            <button class="purchase-btn" {{ !$displayAddress ? 'disabled' : '' }}>
-                購入する
-            </button>
-        </form>
-    </div>
+            <div class="summary-row">
+                <span>支払い方法</span>
+                <span>
+                    @if($paymentMethod == 1)
+                        クレジットカード
+                    @elseif($paymentMethod == 2)
+                        コンビニ払い
+                    @else
+                        未選択
+                    @endif
+                </span>
+            </div>
+        </div>
 
+        {{-- 支払い方法 --}}
+        <input type="hidden" name="payment_method" value="{{ $paymentMethod }}">
+
+        {{-- 住所ID（これ重要） --}}
+        <input type="hidden" name="address_id" value="{{ $displayAddress->id ?? '' }}">
+
+        <button type="submit" class="purchase-btn" {{ !$displayAddress ? 'disabled' : '' }}>
+            購入する
+        </button>
+    </form>
 </div>
 @endsection

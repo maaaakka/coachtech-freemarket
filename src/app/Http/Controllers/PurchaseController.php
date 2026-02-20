@@ -8,6 +8,7 @@ use App\Models\Purchase;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\PurchaseRequest;
 use Illuminate\Http\Request;
+use Stripe\Webhook;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Stripe\Checkout\Session as StripeSession;
@@ -69,114 +70,211 @@ class PurchaseController extends Controller
         ));
     }
 
-    public function store()
-    {
-        return redirect()->back();
+    public function store(Request $request, $item_id)
+{
+    $user = Auth::user();
+    $item = Item::findOrFail($item_id);
+
+    // 自分の商品購入禁止
+    if ($item->user_id === $user->id) {
+        return back();
     }
+
+    // 購入済みチェック
+    if (Purchase::where('item_id', $item->id)->exists()) {
+        return back();
+    }
+
+    /* =========================
+       ⭐ 住所決定ロジック（本命）
+    ========================= */
+
+    $addressData = null;
+
+    // ① セッション住所
+    if (session('temp_address')) {
+        $addressData = session('temp_address');
+    }
+    // ② プロフィール住所
+    elseif ($user->profile) {
+        $addressData = [
+            'postcode' => $user->profile->postcode,
+            'address'  => $user->profile->address,
+            'building' => $user->profile->building,
+        ];
+    }
+
+    if (!$addressData) {
+        return back()->with('error', '住所がありません');
+    }
+
+    // ⭐ ここで初めて保存（重要）
+    $address = Address::create([
+        'user_id' => $user->id,
+        'postcode' => $addressData['postcode'],
+        'address'  => $addressData['address'],
+        'building' => $addressData['building'] ?? null,
+    ]);
+
+    /* ========================= */
+
+    // 購入作成
+    $purchase = Purchase::create([
+        'user_id'        => $user->id,
+        'item_id'        => $item->id,
+        'address_id'     => $address->id,
+        'payment_method' => $request->payment_method ?? 1,
+        'payment_status' => Purchase::STATUS_PENDING,
+    ]);
+
+    session(['purchase_id' => $purchase->id]);
+
+    return redirect()->route('purchase.checkout', $item->id);
+}
     /**
      * 購入確定処理
      */
     public function success(Request $request)
-    {
-        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+{
+    \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        $stripeSessionId = $request->query('session_id');
-
-        if (!$stripeSessionId) {
-            return redirect()->route('items.index')->with('error', 'セッションIDがありません');
-        }
-
-        // Stripeに直接確認（←セッション照合はしない）
-        $stripeSession = \Stripe\Checkout\Session::retrieve($stripeSessionId);
-
-        if ($stripeSession->payment_status !== 'paid') {
-            return redirect()->route('items.index')->with('error', '支払い未完了');
-        }
-
-        // 🔥 Stripeのmetadataから商品ID取得
-        $itemId = $stripeSession->metadata->item_id ?? null;
-
-        if (!$itemId) {
-            return redirect()->route('items.index')->with('error', '商品情報が取得できません');
-        }
-
-        $user = Auth::user();
-        $item = Item::findOrFail($itemId);
-
-        // 自分の商品は買えない
-        if ($item->user_id === $user->id) {
-            return redirect()->route('items.index')->with('error', '自分の商品は購入できません');
-        }
-
-        // 売り切れチェック
-        if (Purchase::where('item_id', $item->id)->exists()) {
-            return redirect()->route('items.index')->with('error', 'この商品はすでに購入されています');
-        }
-
-        // 🔥 住所決定
-        $tempAddress = session('temp_address');
-
-        if ($tempAddress) {
-            $address = Address::create([
-                'user_id'  => $user->id,
-                'postcode' => $tempAddress['postcode'],
-                'address'  => $tempAddress['address'],
-                'building' => $tempAddress['building'],
-            ]);
-            session()->forget(['temp_address', 'temp_address_item_id']);
-
-        } elseif ($user->profile) {
-            $address = Address::create([
-                'user_id'  => $user->id,
-                'postcode' => $user->profile->postcode,
-                'address'  => $user->profile->address,
-                'building' => $user->profile->building,
-            ]);
-        } else {
-            return redirect()->route('items.index')->with('error', '住所を登録してください');
-        }
-
-        // 購入記録作成
-        Purchase::create([
-            'user_id'        => $user->id,
-            'item_id'        => $item->id,
-            'address_id'     => $address->id,
-            'payment_method' => session('payment_method', 1),
-            'payment_status' => 1,
-        ]);
-
-        session()->forget(['payment_method', 'payment_item_id', 'temp_address']);
-
-        return redirect()->route('mypage')->with('success', '購入が完了しました');
+    $sessionId = $request->query('session_id');
+    if (!$sessionId) {
+        return redirect()->route('items.index')->with('error', 'セッションIDがありません');
     }
 
+    $session = \Stripe\Checkout\Session::retrieve($sessionId);
+
+    if ($session->payment_status !== 'paid') {
+        return redirect()->route('items.index')->with('error', '支払い未完了');
+    }
+
+    // ⭐ purchase_idで更新
+    $purchaseId = $session->metadata->purchase_id ?? null;
+
+    if ($purchaseId) {
+        Purchase::where('id', $purchaseId)
+            ->update(['payment_status' => Purchase::STATUS_PAID]);
+    }
+
+    return redirect()->route('mypage')->with('success', '購入が完了しました');
+}
+
     public function checkout(Request $request, Item $item)
-    {
-        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+{
 
-        $session = \Stripe\Checkout\Session::create([
-            'payment_method_types' => ['card', 'konbini'],
-            'mode' => 'payment',
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'jpy',
-                    'product_data' => [
-                        'name' => $item->name,
-                    ],
-                    'unit_amount' => $item->price,
-                ],
-                'quantity' => 1,
-            ]],
-            // 🔥 ここが超重要
-            'metadata' => [
-                'item_id' => $item->id,
-                'user_id' => auth()->id(),
+    \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+    // 最新purchase取得
+    $purchase = Purchase::where('item_id', $item->id)
+        ->where('user_id', auth()->id())
+        ->latest()
+        ->first();
+
+    if (!$purchase) {
+        return redirect()->route('items.index')
+            ->with('error', '購入情報が見つかりません。');
+    }
+
+    // 支払い方法はDBから取る（重要）
+    $paymentMethods = ['card'];
+
+    if ($purchase->payment_method == 2) {
+        $paymentMethods = ['konbini'];
+    }
+
+    $session = \Stripe\Checkout\Session::create([
+        'payment_method_types' => $paymentMethods,
+        'payment_method_options' => [
+            'konbini' => [
+                'expires_after_days' => 3,
             ],
-            'success_url' => url('/purchase/success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => url('/purchase/cancel'),
-        ]);
-
+        ],
+        'mode' => 'payment',
+        'line_items' => [[
+            'price_data' => [
+                'currency' => 'jpy',
+                'product_data' => [
+                    'name' => $item->name,
+                ],
+                'unit_amount' => $item->price,
+            ],
+            'quantity' => 1,
+        ]],
+        'metadata' => [
+            'purchase_id' => $purchase->id,
+        ],
+        'success_url' => url('/purchase/success') . '?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url' => url('/purchase/cancel'),
+    ]);
+    
         return redirect($session->url);
+
+}
+
+    public function webhook(Request $request)
+    {
+        $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
+
+        $payload = $request->getContent();
+        $sig_header = $request->header('Stripe-Signature');
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload,
+                $sig_header,
+                $endpoint_secret
+            );
+        } catch (\Exception $e) {
+            return response('Webhook Error', 400);
+        }
+
+        $session = $event->data->object;
+        $purchaseId = $session->metadata->purchase_id ?? null;
+
+        if (!$purchaseId) {
+            return response('No purchase id', 200);
+        }
+
+        $purchase = Purchase::find($purchaseId);
+        if (!$purchase) {
+            return response('Purchase not found', 200);
+        }
+
+        switch ($event->type) {
+
+            // 💳 カードのみ完了扱い
+            case 'checkout.session.completed':
+
+                if ($purchase->payment_method == Purchase::PAYMENT_CARD) {
+                    $purchase->update([
+                        'payment_status' => Purchase::STATUS_PAID
+                    ]);
+                }
+                break;
+
+            // 🏪 コンビニ支払い完了
+            case 'checkout.session.async_payment_succeeded':
+                $purchase->update([
+                    'payment_status' => Purchase::STATUS_PAID
+                ]);
+                break;
+
+            // ⏰ コンビニ期限切れ
+            case 'checkout.session.expired':
+                $purchase->update([
+                    'payment_status' => Purchase::STATUS_EXPIRED
+                ]);
+                break;
+
+            // ❌ 支払い失敗
+            case 'checkout.session.async_payment_failed':
+                $purchase->update([
+                    'payment_status' => Purchase::STATUS_CANCEL
+                ]);
+                break;
+        }
+        return response('OK', 200);
     }
 
     public function cancel()
@@ -184,4 +282,5 @@ class PurchaseController extends Controller
         return redirect()->route('items.index')
             ->with('error', '決済がキャンセルされました');
     }
+
 }

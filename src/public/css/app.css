@@ -24,6 +24,11 @@ body {
     flex-shrink: 0;
 }
 
+.logo img {
+    height: 24px;
+    display: block;
+}
+
 .search-form {
     flex: 1;
     max-width: 600px;
@@ -82,17 +87,39 @@ body {
     font-weight: bold;
 }
 
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 10px;
+}
+
 /* タブ */
+
 .tabs {
+    position: relative;
     display: flex;
     gap: 30px;
-    border-bottom: 1px solid #ccc;
     margin-bottom: 30px;
+}
+
+.tabs::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 1px;
+    background: #ccc;
+    margin-left: calc(50% - 50vw);
 }
 
 .tab {
     padding: 10px 0;
     text-decoration: none;
+    color: #000;
+}
+
+.tab:visited {
     color: #000;
 }
 
@@ -108,8 +135,24 @@ body {
     gap: 30px;
 }
 
+.item-card {
+    text-align: center;
+    position: relative;
+}
+
+.sold-label {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #f55b5b;
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
 .item-card img {
-    width: 85%;
+    width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     background: #eee;

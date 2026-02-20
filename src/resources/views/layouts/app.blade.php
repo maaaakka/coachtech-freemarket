@@ -16,7 +16,9 @@
 
         {{-- ロゴ（常に表示） --}}
         <div class="logo">
-            <a href="/">COACHTECH</a>
+            <a href="/">
+                <img src="{{ asset('images/COACHTECHlogo.png') }}" alt="COACHTECH">
+            </a>
         </div>
 
         {{-- ▼ ログイン・登録画面ではロゴのみ --}}

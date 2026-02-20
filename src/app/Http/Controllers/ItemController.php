@@ -16,16 +16,29 @@ class ItemController extends Controller
         $tab = $request->tab;
 
         // マイリスト
-        if ($tab === 'mylist' && Auth::check()) {
-            $query = Auth::user()
-                ->likedItems()
-                ->with('user');
+        if ($tab === 'mylist') {
+
+            if (Auth::check()) {
+                $query = Auth::user()
+                    ->likedItems()
+                    ->with(['user', 'purchase']);
+            } else {
+                // 未ログインは空
+                $items = collect();
+                return view('items.index', compact('items'));
+            }
+
         } else {
             // おすすめ
-            $query = Item::with('user');
+            $query = Item::with(['user', 'purchase']);
+
+            // 自分の商品を除外
+            if (Auth::check()) {
+                $query->where('user_id', '!=', Auth::id());
+            }
         }
 
-        // 🔍 商品名 部分一致検索
+        // 商品名 部分一致検索
         if (!empty($keyword)) {
             $query->where('name', 'like', '%' . $keyword . '%');
         }

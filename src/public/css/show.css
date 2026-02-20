@@ -1,11 +1,15 @@
 .item-show-container {
     max-width: 1100px;
     margin: 40px auto;
+    padding: 0 20px;
+    /* ← 左右余白追加（中央感UP） */
 }
 
 .item-main {
     display: flex;
     gap: 60px;
+    justify-content: center;
+    /* ← 全体中央寄せ */
 }
 
 /* 左画像 */
@@ -19,6 +23,8 @@
 /* 右情報 */
 .item-detail {
     flex: 1;
+    max-width: 500px;
+    /* ← 横に広がりすぎ防止 */
 }
 
 .item-name {
@@ -30,30 +36,113 @@
     font-size: 13px;
     color: #666;
     margin-top: 4px;
+    display: flex;
+    gap: 10px;
 }
 
 .item-price {
-    font-size: 22px;
     margin: 16px 0;
 }
 
+.price-value {
+    font-size: 24px;
+}
+
+.price-mark,
+.price-tax {
+    font-size: 15px;
+}
+
+/* アイコン全体 */
 .item-icons {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 24px;
     margin-bottom: 20px;
 }
 
-/* 購入ボタン */
+/* いいねボタン */
+.like-btn {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    /* ← 枠完全削除 */
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.like-btn,
+.like-btn:visited,
+.like-btn:hover,
+.like-btn:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ハート */
+.icon-heart {
+    width: 20px;
+    height: 20px;
+    fill: #ccc;
+}
+
+.icon-heart.liked {
+    fill: #ff4d4d;
+}
+
+/* コメント */
+.comment-icon {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 18px;
+}
+
+/* 数字 */
+.like-btn span,
+.comment-icon span {
+    font-size: 12px;
+    color: #555;
+}
+
+.icon-comment {
+    width: 20px;
+    height: 20px;
+    fill: #666;
+}
+
+/* ボタンの箱 */
 .purchase-button {
     width: 66%;
+    margin-bottom: 30px;
+}
+
+/* 購入ボタン */
+.purchase-button .btn-purchase {
+    display: block;
     background: #f55b5b;
     color: #fff;
     text-align: center;
     padding: 12px 0;
     border-radius: 4px;
     text-decoration: none;
-    /* ← 下線を消す */
-    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+/* 詳細ページ用 SOLD */
+.purchase-button .sold-label {
+    position: static;
+    display: block;
+    background: #f55b5b;
+    color: #fff;
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 4px;
+    font-weight: bold;
 }
 
 .purchase-button a {
@@ -61,6 +150,11 @@
     text-decoration: none;
     display: block;
     font-weight: bold;
+}
+
+.no-click {
+    pointer-events: none;
+    opacity: 0.8;
 }
 
 /* セクション */
@@ -88,41 +182,51 @@
 
 .info-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    /* ← 複数行でもズレない */
     margin-bottom: 12px;
-    /* 行ごとの余白 */
 }
 
 .info-row .label {
     width: 120px;
-    /* ← ラベル幅を固定 */
     font-size: 13px;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 .info-row .value {
     font-size: 13px;
 }
 
-.label {
-    font-size: 13px;
-    font-weight: bold;
-    margin-bottom: 10px;
+/* カテゴリ折り返し */
+.info-row .value {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 320px;
+    /* ← 4個くらいで折り返し */
 }
-/* カテゴリ */
+
+/* カテゴリタグ */
 .category-tag {
     display: inline-block;
     background: #eee;
     color: #555;
     padding: 6px 14px;
     border-radius: 999px;
-    /* ← 完全な丸み */
     font-size: 12px;
-    margin-right: 8px;
+    margin: 4px 8px 4px 0;
 }
+
 /* コメント */
 .comment {
     margin-bottom: 10px;
+}
+
+.no-comment {
+    background: #f3f3f3;
+    height: 50px;
+    border-radius: 4px;
 }
 
 textarea {
@@ -157,6 +261,5 @@ textarea {
 }
 
 .comment-user-icon.default {
-    display: inline-block;
     background-color: #ccc;
 }

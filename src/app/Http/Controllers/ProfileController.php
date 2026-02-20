@@ -49,6 +49,6 @@ class ProfileController extends Controller
         if (! $user->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
         }
-        return redirect('mypage');
+        return redirect('/');
     }
 }
