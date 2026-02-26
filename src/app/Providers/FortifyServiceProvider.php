@@ -5,19 +5,19 @@ namespace App\Providers;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use App\Http\Responses\LoginResponse;
 
+use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
+use App\Http\Responses\RegisterResponse;
+
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
-use App\Http\Requests\LoginRequest;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 use Laravel\Fortify\Fortify;
 
@@ -28,12 +28,17 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // ログイン後リダイレクト
         $this->app->singleton(
             LoginResponseContract::class,
             LoginResponse::class
         );
 
-
+        // ✅ 新規登録後リダイレクト（ここが重要）
+        $this->app->singleton(
+            RegisterResponseContract::class,
+            RegisterResponse::class
+        );
     }
 
     /**
@@ -49,14 +54,10 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(fn () => view('auth.login'));
         Fortify::registerView(fn () => view('auth.register'));
 
-        // 新規登録後はメール認証画面へ飛ばす
-        Fortify::redirects('register', '/email/verify');
-
+        // ログイン試行制限
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::lower($request->input(Fortify::username())).'|'.$request->ip();
+            $throttleKey = Str::lower($request->input(Fortify::username())) . '|' . $request->ip();
             return Limit::perMinute(5)->by($throttleKey);
         });
-
-        
     }
 }

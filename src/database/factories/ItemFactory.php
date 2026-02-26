@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Models\User;
 use App\Models\Item;
 use App\Models\Like;
-use App\Models\Purchase; // ← これ追加
+use App\Models\Purchase;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ItemFactory extends Factory

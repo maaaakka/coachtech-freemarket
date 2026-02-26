@@ -21,8 +21,8 @@ class UsersTableSeeder extends Seeder
                 'name' => 'テストユーザー',
                 'email' => 'test@example.com',
                 'password' => Hash::make('password123'),
-                'email_verified_at' => now(),
-                'profile_completed' => true,
+                'email_verified_at' => null,
+                'profile_completed' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
 

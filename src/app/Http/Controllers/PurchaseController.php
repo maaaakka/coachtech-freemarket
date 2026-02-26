@@ -27,20 +27,26 @@ class PurchaseController extends Controller
         🟢 支払い方法セッション管理
         ====================== */
 
-        // 別商品に来たら支払い方法もリセット
-        if (session('payment_item_id') != $item_id) {
-            session()->forget(['payment_method', 'payment_item_id']);
-        }
+        // GET値を先に取得
+$selectedMethod = $request->query('payment_method');
 
-        // 選択されたら保存
-        if ($request->has('payment_method')) {
-            session([
-                'payment_method' => $request->payment_method,
-                'payment_item_id' => $item_id
-            ]);
-        }
+// 送信があった場合だけ保存
+if ($selectedMethod !== null) {
+    session([
+        'payment_method' => $selectedMethod,
+        'payment_item_id' => $item_id
+    ]);
+}
 
-        $paymentMethod = session('payment_method');
+// 別商品に来た時だけリセット
+if (
+    session('payment_item_id') &&
+    session('payment_item_id') != $item_id
+) {
+    session()->forget(['payment_method', 'payment_item_id']);
+}
+
+$paymentMethod = session('payment_method');
 
 
         /* ======================
@@ -81,7 +87,14 @@ class PurchaseController extends Controller
     }
 
     // 購入済みチェック
-    if (Purchase::where('item_id', $item->id)->exists()) {
+    if(
+        Purchase::where('item_id', $item->id)
+        ->whereIn('payment_status', [
+            Purchase::STATUS_PENDING,
+            Purchase::STATUS_PAID
+        ])
+        ->exists()
+    ) {
         return back();
     }
 
@@ -145,9 +158,7 @@ class PurchaseController extends Controller
 
     $session = \Stripe\Checkout\Session::retrieve($sessionId);
 
-    if ($session->payment_status !== 'paid') {
-        return redirect()->route('items.index')->with('error', '支払い未完了');
-    }
+   
 
     // ⭐ purchase_idで更新
     $purchaseId = $session->metadata->purchase_id ?? null;
@@ -162,10 +173,8 @@ class PurchaseController extends Controller
 
     public function checkout(Request $request, Item $item)
 {
-
     \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
-    // 最新purchase取得
     $purchase = Purchase::where('item_id', $item->id)
         ->where('user_id', auth()->id())
         ->latest()
@@ -176,11 +185,14 @@ class PurchaseController extends Controller
             ->with('error', '購入情報が見つかりません。');
     }
 
-    // 支払い方法はDBから取る（重要）
+    // 支払い方法
     $paymentMethods = ['card'];
+    $successUrl = route('purchase.success') . '?session_id={CHECKOUT_SESSION_ID}';
 
+    // コンビニの場合だけ変更
     if ($purchase->payment_method == 2) {
         $paymentMethods = ['konbini'];
+        $successUrl = route('purchase.wait', $item->id);
     }
 
     $session = \Stripe\Checkout\Session::create([
@@ -204,12 +216,21 @@ class PurchaseController extends Controller
         'metadata' => [
             'purchase_id' => $purchase->id,
         ],
-        'success_url' => url('/purchase/success') . '?session_id={CHECKOUT_SESSION_ID}',
-        'cancel_url' => url('/purchase/cancel'),
+        'success_url' => $successUrl,
+        'cancel_url' => route('purchase.cancel'),
     ]);
-    
-        return redirect($session->url);
 
+    return redirect($session->url);
+}
+
+public function wait(Item $item)
+{
+    $purchase = Purchase::where('item_id', $item->id)
+        ->where('user_id', auth()->id())
+        ->latest()
+        ->first();
+
+    return view('purchase.wait', compact('purchase'));
 }
 
     public function webhook(Request $request)

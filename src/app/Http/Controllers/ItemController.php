@@ -21,7 +21,8 @@ class ItemController extends Controller
             if (Auth::check()) {
                 $query = Auth::user()
                     ->likedItems()
-                    ->with(['user', 'purchase']);
+                    ->with(['user', 'purchase'])
+                    ->where('items.user_id', '!=', Auth::id());
             } else {
                 // 未ログインは空
                 $items = collect();

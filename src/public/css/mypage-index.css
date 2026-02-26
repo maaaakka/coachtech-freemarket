@@ -89,3 +89,14 @@
     aspect-ratio: 1 / 1;
     object-fit: cover;
 }
+
+/* 商品一覧のリンクの下線と色をリセット */
+.item-card a {
+    text-decoration: none;
+    color: inherit
+}
+
+.item-name {
+    margin-top: 8px;
+    color: #333;
+}

@@ -6,9 +6,6 @@
 
 @section('content')
 
-@php
-    $paymentMethod = request('payment_method', 1);
-@endphp
 
 <div class="purchase-container">
 
@@ -36,10 +33,20 @@
 
             <div class="section-body">
                 <form method="GET" action="{{ route('purchase.confirm', $item->id) }}">
-                    <select name="payment_method" onchange="this.form.submit()" required>
-                        <option value="">選択してください</option>
-                        <option value="1" {{ $paymentMethod == 1 ? 'selected' : '' }}>クレジットカード</option>
-                        <option value="2" {{ $paymentMethod == 2 ? 'selected' : '' }}>コンビニ払い</option>
+                    <select name="payment_method" onchange="this.form.submit()">
+
+                        <option value="" {{ empty($paymentMethod) ? 'selected' : '' }}>
+                            選択してください
+                        </option>
+
+                        <option value="1" {{ (string)$paymentMethod === '1' ? 'selected' : '' }}>
+                            クレジットカード
+                        </option>
+
+                        <option value="2" {{ (string)$paymentMethod === '2' ? 'selected' : '' }}>
+                            コンビニ払い
+                        </option>
+
                     </select>
                 </form>
             </div>

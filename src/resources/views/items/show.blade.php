@@ -134,7 +134,6 @@
     <div class="info-row">
         <span class="label">カテゴリー</span>
 
-        {{-- ←ここを変更 --}}
         <div class="category-list">
             @foreach($item->categories as $category)
                 <span class="category-tag">
@@ -176,17 +175,17 @@
         </span>
 
         {{ $comment->user->name }}
-    </p>
+            </p>
 
-    {{-- コメント本文 --}}
-        <p class="comment-body">
-            {{ $comment->body }}
-        </p>
+            {{-- コメント本文 --}}
+                <p class="comment-body">
+                    {{ $comment->body }}
+                </p>
+                </div>
+            @empty
+                <div class="no-comment"></div>
+            @endforelse
         </div>
-    @empty
-        <div class="no-comment"></div>
-    @endforelse
-</div>
 
 {{-- コメント投稿 --}}
 <div class="comment-form">

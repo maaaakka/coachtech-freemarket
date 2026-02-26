@@ -39,15 +39,23 @@
         @else
             @foreach($items as $item)
                 <div class="item-card">
-                    <a href="{{ route('items.show', $item->id) }}">
+                    <a href="{{ route('items.show', $item->id) }}" class="item-link">
                         <img src="{{ asset('storage/' . $item->image_path) }}" alt="{{ $item->name }}">
+                        <div class="item-name">
+                        {{ $item->name }}
+                    </div>
 
                         {{-- Sold表示 --}}
-                        @if($item->purchase)
+                        @if(
+                            $item->purchase &&
+                            in_array($item->purchase->payment_status, [
+                                \App\Models\Purchase::STATUS_PENDING,
+                                \App\Models\Purchase::STATUS_PAID
+                            ])
+                        )
                             <span class="sold-label">Sold</span>
                         @endif
                     </a>
-                    <p class="item-name">{{ $item->name }}</p>
                 </div>
             @endforeach
         @endif

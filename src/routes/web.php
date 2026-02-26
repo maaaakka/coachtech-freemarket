@@ -66,3 +66,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
     Route::post('/stripe/webhook', [PurchaseController::class, 'webhook']);
+
+    
