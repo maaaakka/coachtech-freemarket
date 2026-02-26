@@ -80,7 +80,7 @@ STRIPE_KEY=your_public_key
 STRIPE_SECRET=your_secret_key
 STRIPE_WEBHOOK_SECRET=your_webhook_secret
 ```
-
+※テストを実行する場合は .env.testing にも同様の値を設定する。
 
 **メール認証機能**
 Laravelのメール認証機能を使用して実装
