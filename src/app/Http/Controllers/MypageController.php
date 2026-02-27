@@ -24,7 +24,7 @@ class MypageController extends Controller
         ->latest()
         ->get();
 
-        $tab = request('tab', 'sell');
+        $tab = request('page', 'sell');
 
         return view('mypage.index', compact(
             'user',
